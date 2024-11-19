@@ -1,22 +1,14 @@
 #include <Arduino.h>
 
-#include <DHT.h>
 #include <Wire.h>
 
-#include "SensirionI2CScd4x.h"
 #include <esp_now.h>
 #include <WiFi.h>
 
 #include "classes/light/LightSensor.h"
+#include "classes/CO2/CO2Sensor.h"
+#include "classes/tempHumidity/TempHumiditySensor.h"
 
-
-// Temp & Humidity
-#define DHTPIN 23
-#define DHTTYPE DHT22
-DHT dht(DHTPIN, DHTTYPE);
-
-// CO2
-SensirionI2CScd4x scd4x;
 
 //Access Point
 #define BUTTON_PIN 13
@@ -26,45 +18,8 @@ bool isConnectedToMaster = false;
 String masterMacAddress;
 
 LightSensor lightSensor;
-
-
-void runCO2(){
-    uint16_t co2;
-    float temperature;
-    float humidity;
-    uint16_t error;
-
-    error = scd4x.readMeasurement(co2, temperature, humidity); // Read CO2 and ignore temp/humidity
-    if (error) {
-        Serial.println(error);
-    } else {
-        Serial.print("CO2: ");
-        Serial.print(co2);
-        Serial.println(" ppm");
-
-        Serial.print("Temperature: ");
-        Serial.print(temperature);
-        Serial.println("°C");
-
-    }
-}
-void runTempHumidity(){
-    float humidity = dht.readHumidity();
-    float temperature = dht.readTemperature();
-
-    if (isnan(humidity) || isnan(temperature)) {
-        Serial.println("Failed to read from DHT sensor!");
-        return;
-    }
-
-    Serial.print("Humidity: ");
-    Serial.print(humidity);
-    Serial.println("%");
-
-    Serial.print("Temperature: ");
-    Serial.print(temperature);
-    Serial.println("°C");
-}
+CO2Sensor co2Sensor;
+TempHumiditySensor tempHumiditySensor;
 
 void connectToMaster() {
   Serial.println("Button pressed. Scanning for Master...");
@@ -121,23 +76,15 @@ void scani2c(){
 
 void setup() {
     Serial.begin(115200);
-    Wire.begin(21, 22);
-    lightSensor.begin();
+    Wire.begin();
+
     scani2c();
 
-    // scd4x.begin(Wire);
+    lightSensor.begin();
+    co2Sensor.begin();
+    tempHumiditySensor.begin();
 
-    
-    // dht.begin();
 
-    // Start periodic measurement
-    // uint16_t error = scd4x.startPeriodicMeasurement();
-    // if (error) {
-    //     Serial.print("INIT ERROR");
-    //     Serial.println(error);
-    // } else {
-    //     Serial.println("Started periodic measurement.");
-    // }
 
   //ESP-NOW
   // pinMode(BUTTON_PIN, INPUT_PULLUP);
@@ -145,12 +92,17 @@ void setup() {
 
 }
 void loop() {
+    delay(2500);
+    lightSensor.readLight();
+    
+    delay(2500);
+    tempHumiditySensor.readTemp();
 
-    // lightSensor.readLight();
+    delay(2500);
+    tempHumiditySensor.readHumidity();
 
-    // runCO2();
-    // runTempHumidity();
-    // runLight();
+    delay(2500);
+    co2Sensor.readCO2();
 
   // if (digitalRead(BUTTON_PIN) == LOW) {
   //   if (!isConnectedToMaster) {
@@ -166,6 +118,5 @@ void loop() {
   //   }
   // }
 
-  delay(2500); // Short delay to debounce button
 
 }
