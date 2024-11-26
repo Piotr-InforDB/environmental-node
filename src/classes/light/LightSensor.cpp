@@ -4,20 +4,21 @@
 BH1750 lightMeter;
 
 LightSensor::LightSensor(){
-    interval = 2500;
+    interval = 5000;
     last_measurement = 0;
 }
 
 void LightSensor::begin() {
     lightMeter.begin();
+    last_measurement = millis();
 }
 
-void LightSensor::readLight() {
+bool LightSensor::readLight() {
     //Verify interval
     unsigned int currentTime = millis();
     unsigned int elapsed = currentTime - last_measurement;
     
-    if (elapsed < interval) { return; }
+    if (elapsed < interval) { return state; }
     
     last_measurement = currentTime;
 
@@ -27,8 +28,11 @@ void LightSensor::readLight() {
         Serial.print("Light Level: ");
         Serial.print(lux);
         Serial.println(" lx");
+        state = true;
     }
     else{
-        Serial.println("Handle Light Error");
+        state = false;
     }
+
+    return state;
 }

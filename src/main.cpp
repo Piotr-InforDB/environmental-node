@@ -2,61 +2,19 @@
 
 #include <Wire.h>
 
-#include <esp_now.h>
-#include <WiFi.h>
-
 #include "classes/light/LightSensor.h"
 #include "classes/CO2/CO2Sensor.h"
 #include "classes/tempHumidity/TempHumiditySensor.h"
-
+#include "classes/leds/LedsController.h"
+#include "classes/communication/CommunicationController.h"
 
 //Access Point
-#define BUTTON_PIN 13
-const char* masterSSID = "Environmental Node HUB";
-const char* password = "staging_password_123";
-bool isConnectedToMaster = false;
-String masterMacAddress;
 
 LightSensor lightSensor;
 CO2Sensor co2Sensor;
 TempHumiditySensor tempHumiditySensor;
-
-void connectToMaster() {
-  Serial.println("Button pressed. Scanning for Master...");
-
-  int networksFound = WiFi.scanNetworks();
-
-  for (int i = 0; i < networksFound; i++) {
-    if (WiFi.SSID(i) == masterSSID) {
-      Serial.println("Master AP found. Connecting...");
-
-      WiFi.begin(masterSSID, password);
-
-      int attempt = 0;
-      while (WiFi.status() != WL_CONNECTED && attempt < 10) {
-        delay(500);
-        attempt++;
-      }
-
-      if (WiFi.status() == WL_CONNECTED) {
-        isConnectedToMaster = true;
-        masterMacAddress = WiFi.BSSIDstr(i);
-
-        Serial.println("\nConnected to Master AP");
-        Serial.print("Master MAC Address: ");
-        Serial.println(masterMacAddress);
-      } else {
-        Serial.println("\nFailed to connect to Master AP");
-      }
-      break;
-    }
-  }
-
-  // If no master AP found
-  if (masterMacAddress == "") {
-    Serial.println("Master AP not found. Retry when button is pressed again.");
-  }
-}
+LedsController ledsController;
+CommunicationController communicationController;
 
 void scani2c(){
     Serial.println("Scanning...");
@@ -78,45 +36,27 @@ void setup() {
     Serial.begin(115200);
     Wire.begin();
 
-    scani2c();
+    // scani2c();
 
     lightSensor.begin();
-    co2Sensor.begin();
+    delay(500);
+
     tempHumiditySensor.begin();
+    delay(500);
 
+    co2Sensor.begin();
+    delay(500);
 
-
-  //ESP-NOW
-  // pinMode(BUTTON_PIN, INPUT_PULLUP);
-  // WiFi.mode(WIFI_STA);
+    communicationController.begin();
+    delay(500);
 
 }
 void loop() {
-    delay(2500);
-    lightSensor.readLight();
-    
-    delay(2500);
-    tempHumiditySensor.readTemp();
-
-    delay(2500);
-    tempHumiditySensor.readHumidity();
-
-    delay(2500);
-    co2Sensor.readCO2();
-
-  // if (digitalRead(BUTTON_PIN) == LOW) {
-  //   if (!isConnectedToMaster) {
-  //     connectToMaster();
-  //   }
-  // } else {
-  //   // If button is released, disconnect from master AP
-  //   if (isConnectedToMaster) {
-  //     WiFi.disconnect(true);
-  //     Serial.println("Disconnected from Master AP");
-  //     isConnectedToMaster = false;
-  //     masterMacAddress = ""; // Clear stored MAC address
-  //   }
-  // }
-
+    ledsController.setLight( lightSensor.readLight() );
+    ledsController.setTemp( tempHumiditySensor.readTemp() );
+    ledsController.setHumidity( tempHumiditySensor.readHumidity() );
+    ledsController.setCO2( co2Sensor.readCO2() );
+    ledsController.setConnection( communicationController.run() );
+    delay(500);
 
 }
