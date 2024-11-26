@@ -3,6 +3,7 @@
 
 #include <WiFi.h>
 #include <Arduino.h>
+#include <Preferences.h>
 
 class CommunicationController {
 public:
@@ -11,6 +12,9 @@ public:
     String run();
     void connect();
 private:
+    Preferences preferences;
+
+
     String mac_address;
     String state;
     const char* SSID = "Environmental Node HUB";

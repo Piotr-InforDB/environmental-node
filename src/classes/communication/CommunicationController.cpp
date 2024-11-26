@@ -1,6 +1,7 @@
 #include "CommunicationController.h"
 #include <WiFi.h>
 #include <Arduino.h>
+#include <Preferences.h>
 
 #define BUTTON_PIN 12
 
@@ -12,6 +13,13 @@ CommunicationController::CommunicationController(){
 void CommunicationController::begin(){
     pinMode(BUTTON_PIN, INPUT_PULLUP);
     WiFi.mode(WIFI_STA);
+    preferences.begin("env-node", false);
+
+
+    mac_address = preferences.getString("mac_address", "");
+    if(mac_address != ""){
+      state = "CONNECTED";
+    }
 }
 String CommunicationController::run() {
 
@@ -48,13 +56,12 @@ void CommunicationController::connect() {
       if (WiFi.status() == WL_CONNECTED) {
         state = "CONNECTED";
         mac_address = WiFi.BSSIDstr(i);
-        Serial.println("\nConnected to Master AP");
-        Serial.print("Master MAC Address: ");
+        Serial.print("\nConnected to HUB");
         Serial.println(mac_address);
       }
       else {
         state = "IDLE";
-        Serial.println("\nFailed to connect to Master AP");
+        Serial.println("\nFailed to connect to HUB");
       }
       break;
     }
@@ -63,4 +70,5 @@ void CommunicationController::connect() {
     if(mac_address == ""){
       state = "IDLE";
     }
+    preferences.putString("mac_address", mac_address);
 }
