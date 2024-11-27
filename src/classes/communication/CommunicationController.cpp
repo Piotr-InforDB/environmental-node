@@ -2,6 +2,7 @@
 #include <WiFi.h>
 #include <Arduino.h>
 #include <Preferences.h>
+#include <esp_now.h>
 
 #define BUTTON_PIN 12
 
@@ -15,6 +16,10 @@ void CommunicationController::begin(){
     WiFi.mode(WIFI_STA);
     preferences.begin("env-node", false);
 
+    if (esp_now_init() != ESP_OK) {
+        Serial.println("ESP-NOW initialization failed!");
+        state = "ERROR";
+    }
 
     mac_address = preferences.getString("mac_address", "");
     if(mac_address != ""){
@@ -71,4 +76,51 @@ void CommunicationController::connect() {
       state = "IDLE";
     }
     preferences.putString("mac_address", mac_address);
+}
+
+
+void CommunicationController::sendData(String key, float value){
+  if(value == -1){ return; }
+
+  Serial.print("Preparing data");
+  Serial.println(value);
+      uint8_t receiverMAC[6];
+      if (sscanf(this->mac_address.c_str(), "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx",
+                &receiverMAC[0], &receiverMAC[1], &receiverMAC[2],
+                &receiverMAC[3], &receiverMAC[4], &receiverMAC[5]) != 6) {
+          Serial.println("Invalid MAC address format");
+          return;
+      }
+
+      Serial.printf("Peer MAC: %02X:%02X:%02X:%02X:%02X:%02X\n",
+              receiverMAC[0], receiverMAC[1], receiverMAC[2],
+              receiverMAC[3], receiverMAC[4], receiverMAC[5]);
+
+
+      esp_now_peer_info_t peerInfo;
+      memcpy(peerInfo.peer_addr, receiverMAC, 6);
+      peerInfo.channel = 0;
+      peerInfo.encrypt = false;
+      peerInfo.ifidx = WIFI_IF_STA;
+
+      if (!esp_now_is_peer_exist(receiverMAC)) {
+          if (esp_now_add_peer(&peerInfo) != ESP_OK) {
+              Serial.println("Failed to add peer");
+              return;
+          }
+      }
+
+      String data = "{\"key\":" + key + ", \"value\":" + value + "}";
+      Serial.println(data);
+
+      const char *message = data.c_str();
+      size_t messageLen = strlen(message);
+
+      esp_err_t result = esp_now_send(receiverMAC, (uint8_t *)message, messageLen);
+
+      if (result == ESP_OK) {
+          Serial.println("Data sent successfully");
+      } else {
+          Serial.printf("Error sending data: %d\n", result);
+      }
 }

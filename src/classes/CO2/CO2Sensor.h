@@ -8,11 +8,11 @@ class CO2Sensor {
 public:
     CO2Sensor();
     void begin();
-    bool readCO2();
+    float readCO2();
 
 private:
     SensirionI2CScd4x scd4x;
-    bool state;
+    float state;
     unsigned int interval;
     unsigned int last_measurement;
 };

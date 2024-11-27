@@ -10,6 +10,10 @@ TempHumiditySensor::TempHumiditySensor()
     interval = 5000;
     temp_last_measurement = 0;
     humidity_last_measurement = 0;
+
+    state_temp = -1;
+    state_humidity = -1;
+
 }
 
 void TempHumiditySensor::begin() {
@@ -18,7 +22,7 @@ void TempHumiditySensor::begin() {
     humidity_last_measurement = millis();
 }
 
-bool TempHumiditySensor::readTemp() {
+float TempHumiditySensor::readTemp() {
     //Verify interval
     unsigned int currentTime = millis();
     unsigned int elapsed = currentTime - temp_last_measurement;
@@ -31,19 +35,18 @@ bool TempHumiditySensor::readTemp() {
     float temperature = dht.readTemperature();
 
     if (isnan(temperature)) {
-        state_temp = false;
+        state_temp = -1;
     }
     else{
         Serial.print("Temperature: ");
         Serial.print(temperature - 2);
         Serial.println("°C");
-        state_temp = true;
+        state_temp = temperature - 2.5;
     }
 
     return state_temp;
 }
-bool TempHumiditySensor::readHumidity(){
-    //Verify interval
+float TempHumiditySensor::readHumidity(){
     unsigned int currentTime = millis();
     unsigned int elapsed = currentTime - humidity_last_measurement;
     
@@ -54,13 +57,13 @@ bool TempHumiditySensor::readHumidity(){
 
     float humidity = dht.readHumidity();
     if(isnan(humidity)){
-        state_humidity = false;
+        state_humidity = -1;
     }
     else{
         Serial.print("Humidity: ");
         Serial.print(humidity);
         Serial.println("%");
-        state_humidity = true;
+        state_humidity = humidity;
     }
     
     return state_humidity;

@@ -10,20 +10,20 @@ public:
     LedsController();
     
     void setConnection(String connection_state);
-    void setLight(bool state);
-    void setTemp(bool state);
-    void setHumidity(bool state);
-    void setCO2(bool state);
+    void setLight(float state);
+    void setTemp(float state);
+    void setHumidity(float state);
+    void setCO2(float state);
 
     void show();
 
 private:
 
     String connection_state;
-    bool light;
-    bool temp;
-    bool humidity;
-    bool CO2;
+    float light;
+    float temp;
+    float humidity;
+    float CO2;
 
 };
 

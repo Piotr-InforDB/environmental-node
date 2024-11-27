@@ -8,11 +8,11 @@ class LightSensor {
 public:
     LightSensor();
     void begin();
-    bool readLight();
+    float readLight();
 
 private:
     BH1750 lightMeter;
-    bool state;
+    float state;
     unsigned int interval;
     unsigned int last_measurement;
 };

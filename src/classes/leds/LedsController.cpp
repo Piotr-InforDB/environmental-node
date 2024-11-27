@@ -26,20 +26,20 @@ void LedsController::setConnection(String connection_state){
     this->show();
 }
 
-void LedsController::setLight(bool state){
+void LedsController::setLight(float state){
     this->light = state;
     this->show();
 }
-void LedsController::setTemp(bool state){
+void LedsController::setTemp(float state){
     this->temp = state;
     this->show();
 }
-void LedsController::setHumidity(bool state){
+void LedsController::setHumidity(float state){
     this->humidity = state;
     this->show();
 }
 
-void LedsController::setCO2(bool state){
+void LedsController::setCO2(float state){
     this->CO2 = state;
     this->show();
 }
@@ -56,10 +56,10 @@ void LedsController::show(){
         leds[0] = 0x00ff00;
     }
 
-    leds[1] = light ? 0x00ff00 : 0xff0000;
-    leds[2] = temp ? 0x00ff00 : 0xff0000;
-    leds[3] = humidity ? 0x00ff00 : 0xff0000;
-    leds[4] = CO2 ? 0x00ff00 : 0xff0000;
+    leds[1] = (light != -1) ? 0x00ff00 : 0xff0000;
+    leds[2] = (light != -1) ? 0x00ff00 : 0xff0000;
+    leds[3] = (light != -1) ? 0x00ff00 : 0xff0000;
+    leds[4] = (light != -1) ? 0x00ff00 : 0xff0000;
 
     FastLED.show();
 }

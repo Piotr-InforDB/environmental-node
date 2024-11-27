@@ -8,13 +8,13 @@ class TempHumiditySensor {
 public:
     TempHumiditySensor();
     void begin();
-    bool readTemp();
-    bool readHumidity();
+    float readTemp();
+    float readHumidity();
 
 private:
     DHT dht;
-    bool state_temp;
-    bool state_humidity;
+    float state_temp;
+    float state_humidity;
 
     unsigned int interval;
     unsigned int temp_last_measurement;

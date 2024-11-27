@@ -11,6 +11,7 @@ public:
     void begin();
     String run();
     void connect();
+    void sendData(String key, float value);
 private:
     Preferences preferences;
 
