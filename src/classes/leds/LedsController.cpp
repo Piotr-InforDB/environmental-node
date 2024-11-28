@@ -22,10 +22,6 @@ LedsController::LedsController(){
 }
 
 
-void LedsController::setCO2(float state){
-    this->CO2 = state;
-    this->show();
-}
 void LedsController::setLight(float state){
     this->light = state;
     this->show();
@@ -36,6 +32,10 @@ void LedsController::setTemp(float state){
 }
 void LedsController::setHumidity(float state){
     this->humidity = state;
+    this->show();
+}
+void LedsController::setCO2(float state){
+    this->CO2 = state;
     this->show();
 }
 void LedsController::setConnection(String connection_state){
@@ -58,14 +58,14 @@ void LedsController::show(){
     if(light != 9999){
         leds[1] = (light != -9999) ? 0x00ff00 : 0xff0000;
     }
-    if(CO2 != 9999){
-        leds[2] = (CO2 != -9999) ? 0x00ff00 : 0xff0000;
-    }
     if(temp != 9999){
-        leds[3] = (temp != -9999) ? 0x00ff00 : 0xff0000;
+        leds[2] = (temp != -9999) ? 0x00ff00 : 0xff0000;
     }
     if(humidity != 9999){
-        leds[4] = (humidity != -9999) ? 0x00ff00 : 0xff0000;
+        leds[3] = (humidity != -9999) ? 0x00ff00 : 0xff0000;
+    }
+    if(CO2 != 9999){
+        leds[4] = (CO2 != -9999) ? 0x00ff00 : 0xff0000;
     }
 
 

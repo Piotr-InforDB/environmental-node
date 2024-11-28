@@ -57,11 +57,6 @@ void loop() {
     communicationController.sendData("Light", light);
     delay(250);
 
-    float co2 = co2Sensor.readCO2();
-    ledsController.setCO2( co2 );
-    communicationController.sendData("CO2", co2);
-    delay(250);
-
     float temp = tempHumiditySensor.readTemp();
     ledsController.setTemp( temp );
     communicationController.sendData("Temperature", temp);
@@ -70,6 +65,11 @@ void loop() {
     float humidity = tempHumiditySensor.readHumidity();
     ledsController.setHumidity( humidity );
     communicationController.sendData("Humidity", humidity);
+    delay(250);
+
+    float co2 = co2Sensor.readCO2();
+    ledsController.setCO2( co2 );
+    communicationController.sendData("CO2", co2);
     delay(250);
 
     ledsController.setConnection( communicationController.run() );
