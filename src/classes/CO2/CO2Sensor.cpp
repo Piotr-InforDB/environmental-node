@@ -4,22 +4,21 @@
 SensirionI2CScd4x scd4x;
 
 CO2Sensor::CO2Sensor(){
-    interval = 5000;
-    last_measurement = 0;
-    state = -1;
+    interval = 45000;
+    last_measurement = 99999;
+    state = -9999;
 }
 
 void CO2Sensor::begin(){
     scd4x.begin(Wire);
     scd4x.startPeriodicMeasurement();
-    last_measurement = millis();
 }
 float CO2Sensor::readCO2(){
     //Verify interval
     unsigned int currentTime = millis();
     unsigned int elapsed = currentTime - last_measurement;
     
-    if (elapsed < interval) { return state; }
+    if (elapsed < interval) { return 9999; }
     
     last_measurement = currentTime;
 
@@ -33,7 +32,7 @@ float CO2Sensor::readCO2(){
     
     error = scd4x.readMeasurement(co2, temperature, humidity);
     if (error || !co2) {
-        state = false;
+        state = -9999;
     }
     else {
         Serial.print("Co2:");

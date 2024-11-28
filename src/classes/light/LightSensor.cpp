@@ -4,14 +4,13 @@
 BH1750 lightMeter;
 
 LightSensor::LightSensor(){
-    interval = 5000;
-    last_measurement = 0;
-    state = -1;
+    interval = 45000;
+    last_measurement = 99999;
+    state = -9999;
 }
 
 void LightSensor::begin() {
     lightMeter.begin();
-    last_measurement = millis();
 }
 
 float LightSensor::readLight() {
@@ -19,7 +18,7 @@ float LightSensor::readLight() {
     unsigned int currentTime = millis();
     unsigned int elapsed = currentTime - last_measurement;
     
-    if (elapsed < interval) { return state; }
+    if (elapsed < interval) { return 9999; }
     
     last_measurement = currentTime;
 
@@ -32,7 +31,7 @@ float LightSensor::readLight() {
         state = lux;
     }
     else{
-        state = -1;
+        state = -9999;
     }
 
     return state;
